@@ -1,0 +1,15 @@
+{
+    "id": "terminal-header",
+    "name": "Terminal Header & Session Title",
+    "version": "1.0.0-beta",
+    "author": "DJLegends1011",
+    "description": "Sets the Termux session drawer title (e.g. 'Project Σ WebServer') via OSC terminal escape sequences and prints a SillyTavern-style startup banner with local and LAN URLs.",
+    "requires": { "api": "2.6" },
+    "settings": {
+        "windowTitle": "Project Σ WebServer",
+        "showStartupBanner": true,
+        "showActiveGeneration": true
+    },
+    "client": "client/index.js",
+    "server": "server/index.js"
+}

@@ -1,0 +1,6 @@
+{
+    "name": "sigma-ext-terminal-header",
+    "version": "1.0.0-beta",
+    "private": true,
+    "type": "module"
+}
