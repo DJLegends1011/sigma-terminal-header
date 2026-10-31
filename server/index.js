@@ -123,13 +123,13 @@ export function register(router, ctx) {
         if (!db) {
             return {
                 windowTitle: sanitizeTitle(cached.windowTitle || DEFAULT_TITLE),
-                showStartupBanner: cached.showStartupBanner !== false,
+                showStartupBanner: cached.showStartupBanner === true,
                 showActiveGeneration: cached.showActiveGeneration !== false,
             };
         }
         const cfg = {
             windowTitle: sanitizeTitle(ctx.setting(db, 'windowTitle') || DEFAULT_TITLE),
-            showStartupBanner: ctx.setting(db, 'showStartupBanner') !== false,
+            showStartupBanner: ctx.setting(db, 'showStartupBanner') === true,
             showActiveGeneration: ctx.setting(db, 'showActiveGeneration') !== false,
         };
         writeCachedConfig(cfg);

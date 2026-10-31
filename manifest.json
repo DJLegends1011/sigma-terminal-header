@@ -7,7 +7,7 @@
     "requires": { "api": "2.6" },
     "settings": {
         "windowTitle": "Project Σ WebServer",
-        "showStartupBanner": true,
+        "showStartupBanner": false,
         "showActiveGeneration": true
     },
     "client": "client/index.js",

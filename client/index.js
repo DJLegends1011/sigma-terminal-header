@@ -39,7 +39,7 @@ export default {
 
             const draw = () => {
                 const windowTitle = String(ctx.settings.get('windowTitle') || 'Project Σ WebServer');
-                const showStartupBanner = ctx.settings.get('showStartupBanner') !== false;
+                const showStartupBanner = ctx.settings.get('showStartupBanner') === true;
                 const showActiveGeneration = ctx.settings.get('showActiveGeneration') !== false;
 
                 el.innerHTML = `
