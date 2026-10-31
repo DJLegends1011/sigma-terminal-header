@@ -1,10 +1,12 @@
 // Terminal Header & Session Title extension (server half) for Project Sigma.
 // Sets the Termux session drawer / terminal window title via OSC 2 & OSC 0 escape sequences
-// (matching SillyTavern's `setWindowTitle`) and prints a clean startup banner with local & LAN URLs.
+// (matching SillyTavern's `setWindowTitle`), prints a clean startup banner with local & LAN URLs, and on Termux
+// opens the web app / PWA in the Android browser once the server answers (start.sh only opens one on desktops).
 
 import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawn } from 'node:child_process';
 
 const DEFAULT_TITLE = 'Project Σ WebServer';
 const CONFIG_FILE = 'terminal-header.json';
@@ -62,7 +64,7 @@ function readServerHostPort() {
 
     return {
         host: host || '127.0.0.1',
-        port: port || 3000,
+        port: port || 7788,
     };
 }
 
@@ -101,6 +103,38 @@ export function printStartupBanner({ host, port, title }) {
     console.log(`\n${sep}\n`);
 }
 
+function isTermux() {
+    return Boolean(process.env.TERMUX_VERSION || process.env.PREFIX?.includes('com.termux'));
+}
+
+function findTermuxOpenUrl() {
+    for (const dir of String(process.env.PATH || '').split(path.delimiter).filter(Boolean)) {
+        const p = path.join(dir, 'termux-open-url');
+        if (fs.existsSync(p)) return p;
+    }
+    return null;
+}
+
+// Poll /api/health until the server answers, then hand the URL to Android (browser or installed PWA).
+// Uses `localhost` rather than 127.0.0.1 because the PWA is installed against the localhost origin.
+export function openInTermuxBrowser({ port }) {
+    const opener = findTermuxOpenUrl();
+    if (!opener) return false;
+    const url = `http://localhost:${port}/`;
+    (async () => {
+        for (let i = 0; i < 240; i++) {
+            try {
+                if ((await fetch(`${url}api/health`, { signal: AbortSignal.timeout(2000) })).ok) {
+                    spawn(opener, [url], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
+                    return;
+                }
+            } catch { /* not listening yet */ }
+            await new Promise(r => setTimeout(r, 500).unref?.());
+        }
+    })();
+    return true;
+}
+
 export function register(router, ctx) {
     const sharedFiles = ctx.files.shared();
 
@@ -125,12 +159,14 @@ export function register(router, ctx) {
                 windowTitle: sanitizeTitle(cached.windowTitle || DEFAULT_TITLE),
                 showStartupBanner: cached.showStartupBanner === true,
                 showActiveGeneration: cached.showActiveGeneration !== false,
+                autoOpenBrowser: cached.autoOpenBrowser !== false,
             };
         }
         const cfg = {
             windowTitle: sanitizeTitle(ctx.setting(db, 'windowTitle') || DEFAULT_TITLE),
             showStartupBanner: ctx.setting(db, 'showStartupBanner') === true,
             showActiveGeneration: ctx.setting(db, 'showActiveGeneration') !== false,
+            autoOpenBrowser: ctx.setting(db, 'autoOpenBrowser') !== false,
         };
         writeCachedConfig(cfg);
         return cfg;
@@ -153,6 +189,9 @@ export function register(router, ctx) {
         currentTitle = setTerminalWindowTitle(cfg.windowTitle);
         if (cfg.showStartupBanner) {
             printStartupBanner({ host, port, title: currentTitle });
+        }
+        if (cfg.autoOpenBrowser && isTermux()) {
+            openInTermuxBrowser({ port });
         }
     }, 80);
     bootTimer.unref?.();
@@ -195,7 +234,7 @@ export function register(router, ctx) {
             ok: true,
             pid: process.pid,
             platform: process.platform,
-            isTermux: Boolean(process.env.TERMUX_VERSION || process.env.PREFIX?.includes('com.termux')),
+            isTermux: isTermux(),
             termuxVersion: process.env.TERMUX_VERSION || null,
             currentTitle,
             localUrl: `http://${localHost}:${lastPort}`,

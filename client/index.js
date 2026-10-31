@@ -41,6 +41,7 @@ export default {
                 const windowTitle = String(ctx.settings.get('windowTitle') || 'Project Σ WebServer');
                 const showStartupBanner = ctx.settings.get('showStartupBanner') === true;
                 const showActiveGeneration = ctx.settings.get('showActiveGeneration') !== false;
+                const autoOpenBrowser = ctx.settings.get('autoOpenBrowser') !== false;
 
                 el.innerHTML = `
                     <div class="settings-row">
@@ -65,7 +66,11 @@ export default {
                     </div>
                     <div class="settings-row">
                         <label><input type="checkbox" class="cl-switch-input" data-th-bool="showStartupBanner"${showStartupBanner ? ' checked' : ''}><span class="cl-switch" aria-hidden="true"></span><span>Print SillyTavern-style startup banner in terminal</span></label>
-                        <span class="settings-hint" style="overflow-wrap:anywhere;">Prints the framed <code>Go to: http://127.0.0.1:3000 to open Project Σ</code> box (plus LAN IPs) to the Termux console on boot.</span>
+                        <span class="settings-hint" style="overflow-wrap:anywhere;">Prints the framed <code>Go to: http://127.0.0.1:7788 to open Project Σ</code> box (plus LAN IPs) to the Termux console on boot.</span>
+                    </div>
+                    <div class="settings-row">
+                        <label><input type="checkbox" class="cl-switch-input" data-th-bool="autoOpenBrowser"${autoOpenBrowser ? ' checked' : ''}><span class="cl-switch" aria-hidden="true"></span><span>Open Project Σ in the Android browser / PWA on boot (Termux)</span></label>
+                        <span class="settings-hint" style="overflow-wrap:anywhere;">Once the server answers, runs <code>termux-open-url http://localhost:&lt;port&gt;/</code> (needs the <code>termux-tools</code> package). Does nothing outside Termux.</span>
                     </div>
                     <div class="settings-row">
                         <label><input type="checkbox" class="cl-switch-input" data-th-bool="showActiveGeneration"${showActiveGeneration ? ' checked' : ''}><span class="cl-switch" aria-hidden="true"></span><span>Show live AI generation indicator in session title</span></label>

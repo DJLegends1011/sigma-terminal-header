@@ -4,6 +4,7 @@ Sets the **Termux session drawer title** (e.g. `[1] Project Σ WebServer`) and d
 
 ## Features
 - **Termux Session Drawer Label**: Automatically names the running Termux session `Project Σ WebServer` (or any custom title configured in **Settings > Extensions**).
-- **SillyTavern-Style Startup Banner**: Prints a framed `Go to: http://127.0.0.1:3000 to open Project Σ` banner (plus any LAN IPv4 addresses when bound to `0.0.0.0`) right after Project Σ starts listening.
+- **SillyTavern-Style Startup Banner**: Prints a framed `Go to: http://127.0.0.1:7788 to open Project Σ` banner (plus any LAN IPv4 addresses when bound to `0.0.0.0`) right after Project Σ starts listening.
+- **Auto-Open on Boot (Termux)**: Once the server answers `/api/health`, opens `http://localhost:<port>/` in the Android browser (or the installed Sigma PWA) via `termux-open-url`. Project Σ's own `start.sh` only does this on desktops. Toggle in **Settings > Extensions**.
 - **Live AI Generation Indicator**: Optional toggle to prefix the Termux session title with `⚡` and the active model name while a chat reply is generating.
 - **Real-Time Controls**: Change the session title or re-print the banner to the terminal anytime from **Settings > Extensions** without restarting the server.
